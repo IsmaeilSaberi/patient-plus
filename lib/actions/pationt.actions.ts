@@ -1,14 +1,5 @@
 import { ID, Query } from "node-appwrite";
-import {
-  databases,
-  NEXT_PUBLIC_BUCKET_ID,
-  NEXT_PUBLIC_DATABASE_ID,
-  NEXT_PUBLIC_ENDPOINT,
-  NEXT_PUBLIC_PATIENT_COLLECTION_ID,
-  NEXT_PUBLIC_PROJECT_ID,
-  storage,
-  users,
-} from "../appwrite.config";
+import { databases, storage, users } from "../appwrite.config";
 import { parseStringify } from "../utils";
 
 import { InputFile } from "node-appwrite/file";
@@ -56,19 +47,19 @@ export const registerPatient = async ({
       );
 
       file = await storage.createFile(
-        NEXT_PUBLIC_BUCKET_ID!,
+        process.env.NEXT_PUBLIC_BUCKET_ID!,
         ID.unique(),
         inputFile
       );
     }
 
     const newPatient = await databases.createDocument(
-      NEXT_PUBLIC_DATABASE_ID!,
-      NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
       ID.unique(),
       {
         identificationDocumentId: file?.$id || null,
-        identificationDocumentUrl: `${NEXT_PUBLIC_ENDPOINT}/storage/buckets/${NEXT_PUBLIC_BUCKET_ID}/files/${file?.$id}/view?project=${NEXT_PUBLIC_PROJECT_ID}`,
+        identificationDocumentUrl: `${process.env.NEXT_PUBLIC_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_BUCKET_ID}/files/${file?.$id}/view?project=${process.env.NEXT_PUBLIC_PROJECT_ID}`,
         ...patient,
       }
     );
