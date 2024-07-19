@@ -1,6 +1,17 @@
 import { ID, Query } from "node-appwrite";
-import { users } from "../appwrite.config";
+import {
+  databases,
+  NEXT_PUBLIC_BUCKET_ID,
+  NEXT_PUBLIC_DATABASE_ID,
+  NEXT_PUBLIC_ENDPOINT,
+  NEXT_PUBLIC_PATIENT_COLLECTION_ID,
+  NEXT_PUBLIC_PROJECT_ID,
+  storage,
+  users,
+} from "../appwrite.config";
 import { parseStringify } from "../utils";
+
+import { InputFile } from "node-appwrite/file";
 
 export const createUser = async (user: CreateUserParams) => {
   try {
@@ -27,6 +38,43 @@ export const getUser = async (userId: string) => {
     const user = await users.get(userId);
     return parseStringify(user);
   } catch (error: any) {
+    console.log(error);
+  }
+};
+
+export const registerPatient = async ({
+  identificationDocument,
+  ...patient
+}: RegisterUserParams) => {
+  try {
+    let file;
+
+    if (identificationDocument) {
+      const inputFile = InputFile.fromBuffer(
+        identificationDocument?.get("blobFile") as Blob,
+        identificationDocument?.get("fileName") as string
+      );
+
+      file = await storage.createFile(
+        NEXT_PUBLIC_BUCKET_ID!,
+        ID.unique(),
+        inputFile
+      );
+    }
+
+    const newPatient = await databases.createDocument(
+      NEXT_PUBLIC_DATABASE_ID!,
+      NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+      ID.unique(),
+      {
+        identificationDocumentId: file?.$id || null,
+        identificationDocumentUrl: `${NEXT_PUBLIC_ENDPOINT}/storage/buckets/${NEXT_PUBLIC_BUCKET_ID}/files/${file?.$id}/view?project=${NEXT_PUBLIC_PROJECT_ID}`,
+        ...patient,
+      }
+    );
+
+    return parseStringify(newPatient);
+  } catch (error) {
     console.log(error);
   }
 };
