@@ -58,7 +58,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     try {
       const patientData = {
         ...values,
-        uerId: user.$id,
+        userId: user.$id,
         birthDate: new Date(values.birthDate),
         identificationDocument: formData,
       };
@@ -70,6 +70,7 @@ const RegisterForm = ({ user }: { user: User }) => {
     } catch (error) {
       console.log(error);
     }
+    setIsLoading(false);
   }
 
   return (
