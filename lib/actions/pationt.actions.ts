@@ -49,7 +49,6 @@ export const registerPatient = async ({
   identificationDocument,
   ...patient
 }: RegisterUserParams) => {
-  console.log(patient);
   try {
     let file;
 
